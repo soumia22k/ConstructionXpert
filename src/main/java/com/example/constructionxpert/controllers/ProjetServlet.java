@@ -1,4 +1,5 @@
 package com.example.constructionxpert.controllers;
+
 import com.example.constructionxpert.DAO.ProjetDAO;
 import com.example.constructionxpert.Models.Projet;
 import jakarta.servlet.ServletException;
@@ -10,20 +11,20 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/projects")
-public class ProjectServlet extends HttpServlet {
-    private ProjetDAO projectDAO;
+@WebServlet("/projets")
+public class ProjetServlet extends HttpServlet {
+    private ProjetDAO projetDAO;
 
     @Override
     public void init() {
-        projectDAO = new ProjetDAO();
+        projetDAO = new ProjetDAO();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Projet> projects = projectDAO.getAllProjects();
-        request.setAttribute("projects", projects);
-        request.getRequestDispatcher("project.jsp").forward(request, response);
+        List<Projet> projets = projetDAO.getAllProjects();
+        request.setAttribute("projets", projets);
+        request.getRequestDispatcher("projet.jsp").forward(request, response);
     }
 
     @Override
@@ -31,59 +32,63 @@ public class ProjectServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("create".equals(action)) {
-            // Créer un nouveau projet
+            // Create a new project
+            int idProjet = Integer.parseInt(request.getParameter("idProjet"));
             String nomProjet = request.getParameter("nomProjet");
             String description = request.getParameter("description");
             String dateDebut = request.getParameter("dateDebut");
             String dateFin = request.getParameter("dateFin");
             int budget = Integer.parseInt(request.getParameter("budget"));
 
-            Projet project = new Projet();
-            project.setNomProjet(nomProjet);
-            project.setDescription(description);
-            project.setDateDebut(java.sql.Date.valueOf(dateDebut)); // Convertir String en Date
-            project.setDateFin(java.sql.Date.valueOf(dateFin)); // Convertir String en Date
-            project.setBudget(budget);
+            Projet projet = new Projet();
+            projet.setIdProjet(idProjet);
+            projet.setNomProjet(nomProjet);
+            projet.setDescription(description);
+            projet.setDateDebut(java.sql.Date.valueOf(dateDebut));
+            projet.setDateFin(java.sql.Date.valueOf(dateFin));
+            projet.setBudget(budget);
 
-            boolean isCreated = projectDAO.createProject(project);
+            boolean isCreated = projetDAO.createProject(projet);
             if (isCreated) {
-                response.sendRedirect("projects");
+                response.sendRedirect("projets");
             } else {
                 request.setAttribute("error", "Erreur lors de la création du projet.");
-                request.getRequestDispatcher("project.jsp").forward(request, response);
+                request.getRequestDispatcher("projet.jsp").forward(request, response);
             }
         } else if ("update".equals(action)) {
-            // Mettre à jour un projet existant
+            // Update an existing project
+            int idProjet = Integer.parseInt(request.getParameter("idProjet")); // Add idProjet
             String nomProjet = request.getParameter("nomProjet");
             String description = request.getParameter("description");
             String dateDebut = request.getParameter("dateDebut");
             String dateFin = request.getParameter("dateFin");
             int budget = Integer.parseInt(request.getParameter("budget"));
 
-            Projet project = new Projet();
-            project.setNomProjet(nomProjet);
-            project.setDescription(description);
-            project.setDateDebut(java.sql.Date.valueOf(dateDebut)); // Convertir String en Date
-            project.setDateFin(java.sql.Date.valueOf(dateFin)); // Convertir String en Date
-            project.setBudget(budget);
+            Projet projet = new Projet();
+            projet.setIdProjet(idProjet); // Set idProjet
+            projet.setNomProjet(nomProjet);
+            projet.setDescription(description);
+            projet.setDateDebut(java.sql.Date.valueOf(dateDebut));
+            projet.setDateFin(java.sql.Date.valueOf(dateFin));
+            projet.setBudget(budget);
 
-            boolean isUpdated = projectDAO.updateProject(project);
+            boolean isUpdated = projetDAO.updateProject(projet);
             if (isUpdated) {
-                response.sendRedirect("projects");
+                response.sendRedirect("projets");
             } else {
                 request.setAttribute("error", "Erreur lors de la mise à jour du projet.");
-                request.getRequestDispatcher("project.jsp").forward(request, response);
+                request.getRequestDispatcher("projet.jsp").forward(request, response);
             }
         } else if ("delete".equals(action)) {
-            // Supprimer un projet
-            String nomProjet = request.getParameter("nomProjet");
+            // Delete a project
+            int idProjet = Integer.parseInt(request.getParameter("idProjet")); // Change to idProjet
 
-            boolean isDeleted = projectDAO.deleteProject(nomProjet);
+            boolean isDeleted = projetDAO.deleteProject(Integer.parseInt(String.valueOf(idProjet)));
             if (isDeleted) {
-                response.sendRedirect("projects");
+                response.sendRedirect("projets");
             } else {
                 request.setAttribute("error", "Erreur lors de la suppression du projet.");
-                request.getRequestDispatcher("project.jsp").forward(request, response);
+                request.getRequestDispatcher("projet.jsp").forward(request, response);
             }
         }
     }
