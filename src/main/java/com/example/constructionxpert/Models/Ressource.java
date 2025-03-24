@@ -1,18 +1,27 @@
 package com.example.constructionxpert.Models;
 
 public class Ressource {
+    private int idRessource;
+    private String nomRessource;
+    private String typeRessource;
+    private int quantite;
 
-    String nomRessource;
-    String typeRessource;
-    int quantite;
-
-    public Ressource(String nomRessource, String typeRessource, int quantite) {
+    public Ressource(int idRessource,String nomRessource, String typeRessource, int quantite) {
+        this.idRessource = idRessource;
         this.nomRessource = nomRessource;
         this.typeRessource = typeRessource;
         this.quantite = quantite;
     }
 
     public Ressource() {
+    }
+
+    public int getIdRessource() {
+        return idRessource;
+    }
+
+    public void setIdRessource(int idRessource) {
+        this.idRessource = idRessource;
     }
 
     public String getNomRessource() {

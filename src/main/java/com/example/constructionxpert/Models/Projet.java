@@ -3,12 +3,21 @@ package com.example.constructionxpert.Models;
 import java.util.Date;
 
 public class Projet {
+    private int idProjet;
+    private String nomProjet;
+    private String description;
+    private Date dateDebut;
+    private Date dateFin;
+    private int budget;
 
-    String nomProjet;
-    String description;
-    Date dateDebut;
-    Date dateFin;
-    int budget;
+    public Projet(int idProjet, String nomProjet, String description, Date dateDebut, Date dateFin, int budget) {
+        this.idProjet = idProjet;
+        this.nomProjet = nomProjet;
+        this.description = description;
+        this.dateDebut = dateDebut;
+        this.dateFin = dateFin;
+        this.budget = budget;
+    }
 
     public Projet(String nomProjet, String description, Date dateDebut, Date dateFin, int budget) {
         this.nomProjet = nomProjet;
@@ -19,6 +28,16 @@ public class Projet {
     }
 
     public Projet() {
+
+    }
+
+
+    public int getIdProjet() {
+        return idProjet;
+    }
+
+    public void setIdProjet(int idProjet) {
+        this.idProjet = idProjet;
     }
 
     public String getNomProjet() {

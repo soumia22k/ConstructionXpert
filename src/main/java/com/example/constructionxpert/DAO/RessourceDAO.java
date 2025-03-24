@@ -1,27 +1,29 @@
 package com.example.constructionxpert.DAO;
+
 import com.example.constructionxpert.Connection.ConnectionDb;
 import com.example.constructionxpert.Models.Ressource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RessourceDAO {
 
-
-    // Ajouter une ressource
-
-
-    public boolean createResource(Ressource resource) {
-        String sql = "INSERT INTO Ressource (nomRessource, typeRessource, quantite) VALUES (?, ?, ?)";
+    // Create
+    public boolean createRessource(Ressource ressource) {
+        String sql = "INSERT INTO ressource (nomRessource, typeRessource, quantite) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionDb.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, resource.getNomRessource());
-            pstmt.setString(2, resource.getTypeRessource());
-            pstmt.setInt(3, resource.getQuantite());
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, ressource.getNomRessource());
+            pstmt.setString(2, ressource.getTypeRessource());
+            pstmt.setInt(3, ressource.getQuantite());
             int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                ResultSet rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    ressource.setIdRessource(rs.getInt(1));
+                }
+            }
             return rowsInserted > 0;
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -29,61 +31,57 @@ public class RessourceDAO {
         }
     }
 
-    // Récupérer toutes les ressources
+    // Read all resources
     public List<Ressource> getAllResources() {
-        List<Ressource> resources = new ArrayList<>();
-        String sql = "SELECT * FROM Ressource";
-
+        List<Ressource> ressources = new ArrayList<>();
+        String sql = "SELECT * FROM ressource";
         try (Connection conn = ConnectionDb.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                Ressource resource = new Ressource();
-                resource.setNomRessource(rs.getString("nomRessource"));
-                resource.setTypeRessource(rs.getString("typeRessource"));
-                resource.setQuantite(rs.getInt("quantite"));
-                resources.add(resource);
+                Ressource ressource = new Ressource();
+                ressource.setIdRessource(rs.getInt("idRessource"));
+                ressource.setNomRessource(rs.getString("nomRessource"));
+                ressource.setTypeRessource(rs.getString("typeRessource"));
+                ressource.setQuantite(rs.getInt("quantite"));
+                ressources.add(ressource);
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return resources;
+        return ressources;
     }
 
-
-
-    // Récupérer une ressource par son nom
-
-    public Ressource getResourceByName(String nomRessource) {
-        Ressource resource = null;
-        String sql = "SELECT * FROM Ressource WHERE nomRessource = ?";
+    // Read by ID
+    public Ressource getRessourceById(int idRessource) {
+        Ressource ressource = null;
+        String sql = "SELECT * FROM ressource WHERE idRessource = ?";
         try (Connection conn = ConnectionDb.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nomRessource);
+            pstmt.setInt(1, idRessource);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                resource = new Ressource();
-                resource.setNomRessource(rs.getString("nomRessource"));
-                resource.setTypeRessource(rs.getString("typeRessource"));
-                resource.setQuantite(rs.getInt("quantite"));
+                ressource = new Ressource();
+                ressource.setIdRessource(rs.getInt("idRessource"));
+                ressource.setNomRessource(rs.getString("nomRessource"));
+                ressource.setTypeRessource(rs.getString("typeRessource"));
+                ressource.setQuantite(rs.getInt("quantite"));
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return resource;
+        return ressource;
     }
 
-    // Mettre à jour
-
-
-    public boolean updateResource(Ressource resource) {
-        String sql = "UPDATE Ressource SET typeRessource = ?, quantite = ? WHERE nomRessource = ?";
+    // Update
+    public boolean updateRessource(Ressource ressource) {
+        String sql = "UPDATE ressource SET nomRessource = ?, typeRessource = ?, quantite = ? WHERE idRessource = ?";
         try (Connection conn = ConnectionDb.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, resource.getTypeRessource());
-            pstmt.setInt(2, resource.getQuantite());
-            pstmt.setString(3, resource.getNomRessource());
+            pstmt.setString(1, ressource.getNomRessource());
+            pstmt.setString(2, ressource.getTypeRessource());
+            pstmt.setInt(3, ressource.getQuantite());
+            pstmt.setInt(4, ressource.getIdRessource());
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException | ClassNotFoundException e) {
@@ -92,14 +90,12 @@ public class RessourceDAO {
         }
     }
 
-    // Supprimer
-
-
-    public boolean deleteResource(String nomRessource) {
-        String sql = "DELETE FROM Ressource WHERE nomRessource = ?";
+    // Delete
+    public boolean deleteRessource(int idRessource) {
+        String sql = "DELETE FROM ressource WHERE idRessource = ?";
         try (Connection conn = ConnectionDb.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nomRessource);
+            pstmt.setInt(1, idRessource);
             int rowsDeleted = pstmt.executeUpdate();
             return rowsDeleted > 0;
         } catch (SQLException | ClassNotFoundException e) {

@@ -1,4 +1,5 @@
 package com.example.constructionxpert.controllers;
+
 import com.example.constructionxpert.DAO.RessourceDAO;
 import com.example.constructionxpert.Models.Ressource;
 import jakarta.servlet.ServletException;
@@ -7,78 +8,87 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/resources")
 public class ResourceServlet extends HttpServlet {
-    private RessourceDAO resourceDAO;
+    private RessourceDAO ressourceDAO;
 
     @Override
     public void init() {
-        resourceDAO = new RessourceDAO();
+        ressourceDAO = new RessourceDAO();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Ressource> resources = resourceDAO.getAllResources();
-        request.setAttribute("resources", resources);
-        request.getRequestDispatcher("resource.jsp").forward(request, response);
+        String action = request.getParameter("action");
+        switch (action != null ? action : "") {
+            case "edit":
+                int idRessource = Integer.parseInt(request.getParameter("id"));
+                Ressource ressource = ressourceDAO.getRessourceById(idRessource);
+                request.setAttribute("resource", ressource);
+                request.getRequestDispatcher("modifierRessource.jsp").forward(request, response);
+                break;
+            default:
+                List<Ressource> resources = ressourceDAO.getAllResources();
+                request.setAttribute("resources", resources);
+                request.getRequestDispatcher("listeRessource.jsp").forward(request, response);
+                break;
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if ("create".equals(action)) {
-            // Créer une nouvelle ressource
-            String nomRessource = request.getParameter("nomRessource");
-            String typeRessource = request.getParameter("typeRessource");
-            int quantite = Integer.parseInt(request.getParameter("quantite"));
+        switch (action != null ? action : "") {
+            case "create":
+                String nomRessourceCreate = request.getParameter("nomRessource");
+                String typeRessourceCreate = request.getParameter("typeRessource");
+                int quantiteCreate = Integer.parseInt(request.getParameter("quantite"));
 
-            Ressource resource;
-            resource = new Ressource();
-            resource.setNomRessource(nomRessource);
-            resource.setTypeRessource(typeRessource);
-            resource.setQuantite(quantite);
+                Ressource ressourceCreate = new Ressource(0, nomRessourceCreate, typeRessourceCreate, quantiteCreate);
+                boolean isCreated = ressourceDAO.createRessource(ressourceCreate);
+                if (isCreated) {
+                    response.sendRedirect("resources");
+                } else {
+                    request.setAttribute("error", "Erreur lors de la création de la ressource.");
+                    request.getRequestDispatcher("ressource.jsp").forward(request, response);
+                }
+                break;
 
-            boolean isCreated = resourceDAO.createResource(resource);
-            if (isCreated) {
-                response.sendRedirect("resources");
-            } else {
-                request.setAttribute("error", "Erreur lors de la création de la ressource.");
-                request.getRequestDispatcher("resource.jsp").forward(request, response);
-            }
-        } else if ("update".equals(action)) {
-            // Mettre à jour une ressource existante
-            String nomRessource = request.getParameter("nomRessource");
-            String typeRessource = request.getParameter("typeRessource");
-            int quantite = Integer.parseInt(request.getParameter("quantite"));
+            case "update":
+                int idRessourceUpdate = Integer.parseInt(request.getParameter("idRessource"));
+                String nomRessourceUpdate = request.getParameter("nomRessource");
+                String typeRessourceUpdate = request.getParameter("typeRessource");
+                int quantiteUpdate = Integer.parseInt(request.getParameter("quantite"));
 
-            Ressource resource = new Ressource();
-            resource.setNomRessource(nomRessource);
-            resource.setTypeRessource(typeRessource);
-            resource.setQuantite(quantite);
+                Ressource ressourceUpdate = new Ressource(idRessourceUpdate, nomRessourceUpdate, typeRessourceUpdate, quantiteUpdate);
+                boolean isUpdated = ressourceDAO.updateRessource(ressourceUpdate);
+                if (isUpdated) {
+                    response.sendRedirect("resources");
+                } else {
+                    request.setAttribute("error", "Erreur lors de la mise à jour de la ressource.");
+                    request.setAttribute("resource", ressourceUpdate);
+                    request.getRequestDispatcher("modifierRessource.jsp").forward(request, response);
+                }
+                break;
 
-            boolean isUpdated = resourceDAO.updateResource(resource);
-            if (isUpdated) {
-                response.sendRedirect("resources");
-            } else {
-                request.setAttribute("error", "Erreur lors de la mise à jour de la ressource.");
-                request.getRequestDispatcher("resource.jsp").forward(request, response);
-            }
-        } else if ("delete".equals(action)) {
-            // Supprimer une ressource
-            String nomRessource = request.getParameter("nomRessource");
+            case "delete":
+                int idRessourceDelete = Integer.parseInt(request.getParameter("idRessource"));
+                boolean isDeleted = ressourceDAO.deleteRessource(idRessourceDelete);
+                if (isDeleted) {
+                    response.sendRedirect("resources");
+                } else {
+                    request.setAttribute("error", "Erreur lors de la suppression de la ressource.");
+                    doGet(request, response);
+                }
+                break;
 
-            boolean isDeleted = resourceDAO.deleteResource(nomRessource);
-            if (isDeleted) {
-                response.sendRedirect("resources");
-            } else {
-                request.setAttribute("error", "Erreur lors de la suppression de la ressource.");
-                request.getRequestDispatcher("resource.jsp").forward(request, response);
-            }
+            default:
+                // Optionally handle invalid actions here, though in this case, it could just do nothing
+                break;
         }
     }
 }

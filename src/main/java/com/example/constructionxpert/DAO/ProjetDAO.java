@@ -1,4 +1,5 @@
 package com.example.constructionxpert.DAO;
+
 import com.example.constructionxpert.Connection.ConnectionDb;
 import com.example.constructionxpert.Models.Projet;
 
@@ -8,20 +9,23 @@ import java.util.List;
 
 public class ProjetDAO {
 
-
-
-    // Creer
-
-    public boolean createProject(Projet project) {
-        String sql = "INSERT INTO Projet (nomProjet, description, dateDebut, dateFin, budget) VALUES (?, ?, ?, ?, ?)";
+    // Create
+    public boolean createProjet(Projet projet) {
+        String sql = "INSERT INTO projet (nomProjet, description, dateDebut, dateFin, budget) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectionDb.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, project.getNomProjet());
-            pstmt.setString(2, project.getDescription());
-            pstmt.setDate(3, new Date(project.getDateDebut().getTime()));
-            pstmt.setDate(4, new Date(project.getDateFin().getTime()));
-            pstmt.setInt(5, project.getBudget());
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, projet.getNomProjet());
+            pstmt.setString(2, projet.getDescription());
+            pstmt.setDate(3, new java.sql.Date(projet.getDateDebut().getTime()));
+            pstmt.setDate(4, new java.sql.Date(projet.getDateFin().getTime()));
+            pstmt.setInt(5, projet.getBudget());
             int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                ResultSet rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    projet.setIdProjet(rs.getInt(1));
+                }
+            }
             return rowsInserted > 0;
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -29,61 +33,77 @@ public class ProjetDAO {
         }
     }
 
-
-
-    //Afficher
-
+    // Read all projects
     public List<Projet> getAllProjects() {
-        List<Projet> projects = new ArrayList<>();
-        String sql = "SELECT * FROM Projet";
-
+        List<Projet> projets = new ArrayList<>();
+        String sql = "SELECT * FROM projet";
         try (Connection conn = ConnectionDb.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                Projet project = new Projet();
-                project.setNomProjet(rs.getString("nomProjet"));
-                project.setDescription(rs.getString("description"));
-                project.setDateDebut(rs.getDate("dateDebut"));
-                project.setDateFin(rs.getDate("dateFin"));
-                project.setBudget(rs.getInt("budget"));
-                projects.add(project);
+                Projet projet = new Projet();
+                projet.setIdProjet(rs.getInt("idProjet"));
+                projet.setNomProjet(rs.getString("nomProjet"));
+                projet.setDescription(rs.getString("description"));
+                projet.setDateDebut(rs.getDate("dateDebut"));
+                projet.setDateFin(rs.getDate("dateFin"));
+                projet.setBudget(rs.getInt("budget"));
+                projets.add(projet);
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return projects;
+        return projets;
     }
 
-
-    //Modifier
-
-    public boolean updateProject(Projet project) {
-        String sql = "UPDATE Projet SET description = ?, dateDebut = ?, dateFin = ?, budget = ? WHERE nomProjet = ?";
+    // Read by ID
+    public Projet getProjetById(int idProjet) {
+        Projet projet = null;
+        String sql = "SELECT * FROM projet WHERE idProjet = ?";
         try (Connection conn = ConnectionDb.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, project.getDescription());
-            pstmt.setDate(2, new java.sql.Date(project.getDateDebut().getTime()));
-            pstmt.setDate(3, new java.sql.Date(project.getDateFin().getTime()));
-            pstmt.setInt(4, project.getBudget());
-            pstmt.setString(5, project.getNomProjet());
+            pstmt.setInt(1, idProjet);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                projet = new Projet();
+                projet.setIdProjet(rs.getInt("idProjet"));
+                projet.setNomProjet(rs.getString("nomProjet"));
+                projet.setDescription(rs.getString("description"));
+                projet.setDateDebut(rs.getDate("dateDebut"));
+                projet.setDateFin(rs.getDate("dateFin"));
+                projet.setBudget(rs.getInt("budget"));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return projet;
+    }
+
+    // Update
+    public boolean updateProjet(Projet projet) {
+        String sql = "UPDATE projet SET nomProjet = ?, description = ?, dateDebut = ?, dateFin = ?, budget = ? WHERE idProjet = ?";
+        try (Connection conn = ConnectionDb.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, projet.getNomProjet());
+            pstmt.setString(2, projet.getDescription());
+            pstmt.setDate(3, new java.sql.Date(projet.getDateDebut().getTime()));
+            pstmt.setDate(4, new java.sql.Date(projet.getDateFin().getTime()));
+            pstmt.setInt(5, projet.getBudget());
+            pstmt.setInt(6, projet.getIdProjet());
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }
-
     }
 
-    //supprimer
-
-    public boolean deleteProject(String nomProjet) {
-        String sql = "DELETE FROM Projet WHERE nomProjet = ?";
+    // Delete
+    public boolean deleteProjet(int idProjet) {
+        String sql = "DELETE FROM projet WHERE idProjet = ?";
         try (Connection conn = ConnectionDb.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nomProjet);
+            pstmt.setInt(1, idProjet);
             int rowsDeleted = pstmt.executeUpdate();
             return rowsDeleted > 0;
         } catch (SQLException | ClassNotFoundException e) {
@@ -91,7 +111,4 @@ public class ProjetDAO {
             return false;
         }
     }
-
-
-
 }
