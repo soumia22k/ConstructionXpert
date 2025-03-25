@@ -27,20 +27,59 @@ public class TacheServlet extends HttpServlet {
         ressourceDAO = new RessourceDAO();
     }
 
+    // Méthodes privées pour chaque opération CRUD
+    private void createTache(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("projets", projetDAO.getAllProjects());
+        req.setAttribute("resources", ressourceDAO.getAllResources());
+        req.getRequestDispatcher("tache.jsp").forward(req, resp);
+    }
+
+    private void readTaches(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Tache> taches = tacheDAO.getAllTasks();
+        req.setAttribute("taches", taches);
+        req.getRequestDispatcher("listeTache.jsp").forward(req, resp);
+    }
+
+    private void updateTache(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int idTache = Integer.parseInt(req.getParameter("id"));
+        Tache tache = tacheDAO.getTacheById(idTache);
+        req.setAttribute("tache", tache);
+        req.setAttribute("projets", projetDAO.getAllProjects());
+        req.setAttribute("resources", ressourceDAO.getAllResources());
+        req.getRequestDispatcher("modifierTache.jsp").forward(req, resp);
+    }
+
+    private void deleteTache(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int idTache = Integer.parseInt(req.getParameter("id"));
+        boolean isDeleted = tacheDAO.deleteTache(idTache);
+        if (isDeleted) {
+            resp.sendRedirect("taches");
+        } else {
+            req.setAttribute("error", "Erreur lors de la suppression de la tâche.");
+            readTaches(req, resp);
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if ("edit".equals(action)) {
-            int idTache = Integer.parseInt(request.getParameter("id"));
-            Tache tache = tacheDAO.getTacheById(idTache);
-            request.setAttribute("tache", tache);
-            request.setAttribute("projets", projetDAO.getAllProjects());
-            request.setAttribute("resources", ressourceDAO.getAllResources());
-            request.getRequestDispatcher("modifierTache.jsp").forward(request, response);
-        } else {
-            List<Tache> taches = tacheDAO.getAllTasks();
-            request.setAttribute("taches", taches);
-            request.getRequestDispatcher("listeTache.jsp").forward(request, response);
+
+        switch (action != null ? action : "") {
+            case "create":
+                createTache(request, response);
+                break;
+            case "read":
+                readTaches(request, response);
+                break;
+            case "update":
+                updateTache(request, response);
+                break;
+            case "delete":
+                deleteTache(request, response);
+                break;
+            default:
+                readTaches(request, response);
+                break;
         }
     }
 
@@ -58,13 +97,8 @@ public class TacheServlet extends HttpServlet {
 
             Tache tache = new Tache(0, nomTache, description, dateDebut, dateFin, idRessource, idProjet);
             boolean isCreated = tacheDAO.createTache(tache);
-            if (isCreated) {
-                response.sendRedirect("taches");
-            } else {
+            if (!isCreated) {
                 request.setAttribute("error", "Erreur lors de la création de la tâche.");
-                request.setAttribute("projets", projetDAO.getAllProjects());
-                request.setAttribute("resources", ressourceDAO.getAllResources());
-                request.getRequestDispatcher("tache.jsp").forward(request, response);
             }
         } else if ("update".equals(action)) {
             int idTache = Integer.parseInt(request.getParameter("idTache"));
@@ -77,24 +111,10 @@ public class TacheServlet extends HttpServlet {
 
             Tache tache = new Tache(idTache, nomTache, description, dateDebut, dateFin, idRessource, idProjet);
             boolean isUpdated = tacheDAO.updateTache(tache);
-            if (isUpdated) {
-                response.sendRedirect("taches");
-            } else {
+            if (!isUpdated) {
                 request.setAttribute("error", "Erreur lors de la mise à jour de la tâche.");
-                request.setAttribute("tache", tache);
-                request.setAttribute("projets", projetDAO.getAllProjects());
-                request.setAttribute("resources", ressourceDAO.getAllResources());
-                request.getRequestDispatcher("modifierTache.jsp").forward(request, response);
-            }
-        } else if ("delete".equals(action)) {
-            int idTache = Integer.parseInt(request.getParameter("idTache"));
-            boolean isDeleted = tacheDAO.deleteTache(idTache);
-            if (isDeleted) {
-                response.sendRedirect("taches");
-            } else {
-                request.setAttribute("error", "Erreur lors de la suppression de la tâche.");
-                doGet(request, response);
             }
         }
+        response.sendRedirect(request.getContextPath() + "/taches");
     }
 }

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            background-image: url('assets/images/background.jpg');
+            background-image: url('assets/images/img.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -70,7 +70,7 @@
         <div class="col-md-8">
             <div class="form-container">
                 <h2 class="text-center">Ajouter une Tâche</h2>
-                <form action="/taches" method="post">
+                <form action="taches" method="post">
                     <input type="hidden" name="action" value="create">
                     <div class="row">
                         <div class="col-md-6">
@@ -94,7 +94,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Ressource</label>
-                                <select name="idRessource" class="form-control" required>
+                                <select name="idRessource" class="form-control" >
                                     <%
                                         List<Ressource> resources = (List<Ressource>) request.getAttribute("resources");
                                         if (resources != null) {
@@ -109,7 +109,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Projet</label>
-                                <select name="idProjet" class="form-control" required>
+                                <select name="idProjet" class="form-control" >
                                     <%
                                         List<Projet> projets = (List<Projet>) request.getAttribute("projets");
                                         if (projets != null) {

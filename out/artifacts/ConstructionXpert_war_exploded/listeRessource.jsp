@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            background-image: url('assets/images/background.jpg');
+            background-image: url('assets/images/img.jpg');
             background-size: cover;
             background-position: center;
         }
