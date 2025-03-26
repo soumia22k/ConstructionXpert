@@ -34,7 +34,7 @@ public class ResourceServlet extends HttpServlet {
     private void updateResource(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int idRessource = Integer.parseInt(req.getParameter("id"));
         Ressource ressource = ressourceDAO.getRessourceById(idRessource);
-        req.setAttribute("resource", ressource);
+        req.setAttribute("resources", ressource);
         req.getRequestDispatcher("modifierRessource.jsp").forward(req, resp);
     }
 

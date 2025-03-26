@@ -17,7 +17,7 @@ public class TacheDAO {
             pstmt.setString(1, tache.getNomTache());
             pstmt.setString(2, tache.getDescription());
             pstmt.setDate(3, new java.sql.Date(tache.getDateDebut().getTime()));
-            pstmt.setDate(4, new java.sql.Date(tache.getDateFin().getTime()));
+            pstmt.setDate(4, new java.sql.Date(tache.getDateFin(              ).getTime()));
             pstmt.setInt(5, tache.getIdRessource());
             pstmt.setInt(6, tache.getIdProjet());
             int rowsInserted = pstmt.executeUpdate();

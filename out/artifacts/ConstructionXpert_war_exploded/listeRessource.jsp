@@ -88,7 +88,7 @@
                         <td><%= ressource.getQuantite() %></td>
                         <td>
                             <a href="resources?action=edit&id=<%= ressource.getIdRessource() %>" class="btn btn-warning btn-sm">Modifier</a>
-                            <form action="/resources" method="post" style="display:inline;">
+                            <form action="resources" method="post" style="display:inline;">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="idRessource" value="<%= ressource.getIdRessource() %>">
                                 <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>

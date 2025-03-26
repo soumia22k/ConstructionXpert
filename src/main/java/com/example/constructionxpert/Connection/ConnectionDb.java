@@ -38,11 +38,13 @@ public class ConnectionDb {
             statement.execute(tacheTable);
 
 
+
             String ressourceTable = "CREATE TABLE IF NOT EXISTS ressource ("
                     + "idRessource INT AUTO_INCREMENT PRIMARY KEY, "
                     + "nomRessource VARCHAR(100) not null, "
                     +"typeRessource VARCHAR(50) not null,"
                     +"quantite INT not null)";
+
             statement.execute(ressourceTable);
 
 
