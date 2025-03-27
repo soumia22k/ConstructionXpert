@@ -82,30 +82,7 @@ public class TacheDAO {
         return tache;
     }
 
-    // Read by Project ID
-    public List<Tache> getTacheByProject(int idProjet) {
-        List<Tache> taches = new ArrayList<>();
-        String sql = "SELECT * FROM tache WHERE idProjet = ?";
-        try (Connection conn = ConnectionDb.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, idProjet);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                Tache tache = new Tache();
-                tache.setIdTache(rs.getInt("idTache"));
-                tache.setNomTache(rs.getString("nomTache"));
-                tache.setDescription(rs.getString("description"));
-                tache.setDateDebut(rs.getDate("dateDebut"));
-                tache.setDateFin(rs.getDate("dateFin"));
-                tache.setIdRessource(rs.getInt("idRessource"));
-                tache.setIdProjet(rs.getInt("idProjet"));
-                taches.add(tache);
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return taches;
-    }
+
 
     // Update
     public boolean updateTache(Tache tache) {
